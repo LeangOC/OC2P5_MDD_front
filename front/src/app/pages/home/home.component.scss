@@ -6,7 +6,7 @@
   justify-content: center;
   align-items: center;
 
-  background: #fff;
+  background: #FFFFFF;
 }
 
 .logo {
@@ -28,12 +28,18 @@
   width: 150px;
   height: 40px;
 
+  border: 1px solid #000000;
   border-radius: 8px;
+  background: #FFFFFF;
+
+  font-family: 'Inter', sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  color: #000000;
 }
 
-/* Mobile */
+/* Responsive tablette / mobile */
 @media (max-width: 768px) {
-
   .logo {
     width: 280px;
   }
@@ -44,9 +50,25 @@
 
     flex-direction: column;
     gap: 20px;
+
+    margin-top: 50px;
   }
 
   .buttons-wrapper button {
     width: 100%;
   }
+}
+.home-btn {
+  width: 150px;
+  height: 40px;
+
+  background: #fff;
+  border: 1px solid #000;
+  border-radius: 8px;
+
+  font-family: 'Inter', sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+
+  cursor: pointer;
 }
