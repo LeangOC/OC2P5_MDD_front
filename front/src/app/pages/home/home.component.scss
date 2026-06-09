@@ -12,8 +12,8 @@
 
 .logo {
   width: 412px;
-  height: auto;
   max-width: 90%;
+  height: auto;
 }
 
 .actions {
@@ -22,20 +22,20 @@
   display: flex;
   justify-content: space-between;
 
-  margin-top: 80px;
+  margin-top: 48px;
 }
 
 .home-btn {
-  width: 150px;
+  width: 125px;
   height: 40px;
 
-  background: #ffffff;
   border: 1px solid #000000;
   border-radius: 8px;
+  background: #ffffff;
 
   font-family: "Inter", sans-serif;
   font-size: 16px;
-  font-weight: 400;
+  font-weight: 600;
 
   cursor: pointer;
 }
