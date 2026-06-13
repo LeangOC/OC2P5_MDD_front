@@ -1,65 +1,40 @@
+/* Conteneur principal de la page d'accueil */
 .home-page {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-
-  background: #ffffff;
+  min-height: 100vh; // Occupe toute la hauteur de la fenêtre
+  display: flex; // Mise en page Flexbox
+  flex-direction: column; // Les éléments sont empilés verticalement
+  justify-content: center; // Centrage vertical des éléments
+  align-items: center; // Centrage horizontal des éléments
+  background: #ffffff; // Fond blanc
 }
 
-/* ===== Desktop ===== */
+
+
+/* ===== Version Desktop ===== */
 
 .logo {
-  width: 412px;
-  max-width: 90%;
-  height: auto;
+  width: 412px; // Largeur fixe sur grand écran
+  max-width: 90%; //Empêche le logo de dépasser de son conteneur
+  height: auto;  // Conserve les proportions de l'image
 }
-
+/* Conteneur des boutons */
 .actions {
-  width: 377px;
-
-  display: flex;
-  justify-content: space-between;
-
-  margin-top: 48px;
+  width: 377px; // Largeur du bloc contenant les boutons
+  display: flex;  // Affichage des boutons sur une même ligne
+  justify-content: space-between; // Répartition de l'espace entre les boutons
+  margin-top: 48px; // Espace entre le logo et les boutons
 }
 
-.home-btn {
-  width: 125px;
-  height: 40px;
-
-  border: 1px solid #000000;
-  border-radius: 8px;
-  background: #ffffff;
-
-  font-family: "Inter", sans-serif;
-  font-size: 16px;
-  font-weight: 600;
-
-  cursor: pointer;
-}
-
-/* ===== Mobile ===== */
-
+/* ===== Version Mobile ===== */
 @media screen and (max-width: 768px) {
-
   .logo {
-    width: 225px;
+    width: 225px; // Réduction de la taille du logo sur mobile
   }
-
   .actions {
-    width: 156px;
-
-    display: flex;
-    flex-direction: column;
-    gap: 40px;
-
-    margin-top: 60px;
-  }
-
-  .home-btn {
-    width: 156px;
-    height: 40px;
+    width: 156px; // Largeur du conteneur
+    display: flex;  // Flexbox conservé
+    flex-direction: column;   // Les boutons sont empilés verticalement
+    gap: 40px;  // Espace entre les boutons
+    margin-top: 60px; // Augmente légèrement l'espace sous le logo
   }
 }
