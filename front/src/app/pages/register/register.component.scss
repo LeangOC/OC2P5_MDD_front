@@ -1,0 +1,131 @@
+.register-page {
+  min-height: 100vh;
+  background: white;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.register-header {
+  width: 100%;
+  height: 94px;
+
+  display: flex;
+  align-items: center;
+
+  padding: 0 20px;
+  box-sizing: border-box;
+}
+
+.desktop-logo {
+  width: 140px;
+  height: auto;
+
+  margin-left: 20px;
+}
+
+.back-btn {
+  border: none;
+  background: transparent;
+
+  font-size: 32px;
+  cursor: pointer;
+}
+
+.mobile-logo {
+  display: none;
+}
+
+h1 {
+  margin-top: 40px;
+  margin-bottom: 30px;
+
+  font-family: "Inter", sans-serif;
+  font-size: 24px;
+  font-weight: 400;
+}
+
+.register-form {
+  width: 250px;
+
+  display: flex;
+  flex-direction: column;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+
+  margin-bottom: 24px;
+}
+
+.field label {
+  margin-bottom: 8px;
+
+  font-family: "Inter", sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+}
+
+.field input {
+  width: 250px;
+  height: 50px;
+
+  border: 1px solid black;
+  border-radius: 8px;
+
+  padding: 0 12px;
+  box-sizing: border-box;
+}
+
+.submit-btn {
+  width: 128px;
+  height: 40px;
+
+  align-self: center;
+
+  background: #7763C5;
+
+  border: none;
+  border-radius: 8px;
+
+  color: white;
+
+  font-family: "Inter", sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+
+  cursor: pointer;
+}
+
+@media screen and (max-width: 600px) {
+
+  .register-header {
+    height: 60px;
+    padding: 5px 20px;
+  }
+
+  .desktop-logo {
+    display: none;
+  }
+
+  .mobile-logo {
+    display: block;
+
+    width: 225px;
+    height: auto;
+
+    margin-top: 5px;
+    margin-bottom: 10px;
+  }
+
+  h1 {
+    margin-top: 0;
+    margin-bottom: 15px;
+  }
+
+  .field {
+    margin-bottom: 15px;
+  }
+}
