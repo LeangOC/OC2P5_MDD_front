@@ -4,3 +4,4 @@ module.exports = {
   testEnvironment: 'jsdom',
   testPathIgnorePatterns: ['<rootDir>/src/test.ts']
 };
+
