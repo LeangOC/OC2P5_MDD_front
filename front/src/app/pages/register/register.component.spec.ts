@@ -26,8 +26,8 @@ describe('RegisterComponent', () => {
     component.userEmail = 'test@example.com';
     component.userName = 'Jean';
 
-    const consoleSpy = spyOn(console, 'log');
-
+    const consoleSpy = jest.spyOn(console, 'log');
+    // spyOn()-> API Jasmine
     component.onSubmitForme();
 
     expect(consoleSpy).toHaveBeenCalledWith('test@example.com');
