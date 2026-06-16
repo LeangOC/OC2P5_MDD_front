@@ -12,9 +12,5 @@ export class HomeComponent implements OnInit {
 
   ngOnInit(): void {}
 
-  onSignUp(): void {
-    this.router.navigateByUrl('/auth/register');
-  }
-
 }
 

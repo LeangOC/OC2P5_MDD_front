@@ -1,3 +1,4 @@
+import { expect } from '@jest/globals';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { RegisterComponent } from './register.component';
@@ -20,4 +21,17 @@ describe('RegisterComponent', () => {
   it('should create', () => {
     expect(component).toBeTruthy();
   });
+
+  it('should call onSubmitForme', () => {
+    component.userEmail = 'test@example.com';
+    component.userName = 'Jean';
+
+    const consoleSpy = spyOn(console, 'log');
+
+    component.onSubmitForme();
+
+    expect(consoleSpy).toHaveBeenCalledWith('test@example.com');
+    expect(consoleSpy).toHaveBeenCalledWith('Bonjour : Jean');
+  });
 });
+
