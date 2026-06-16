@@ -22,16 +22,22 @@
 
   <h1>Inscription</h1>
 
-  <form class="register-form">
+  <form class="register-form" (ngSubmit)="onSubmitForme()">
 
     <div class="field">
       <label>Nom d'utilisateur</label>
-      <input type="text">
+      <input type="text"
+      name="userName"
+             [(ngModel)]="userName"
+      >
     </div>
 
     <div class="field">
       <label>Adresse e-mail</label>
-      <input type="email">
+      <input type="email"
+      name="userEmail"
+             [(ngModel)]="userEmail"
+      >
     </div>
 
     <div class="field">
@@ -40,7 +46,7 @@
     </div>
 
     <button
-      type="button"
+      type="submit"
       class="submit-btn">
       S'inscrire
     </button>
