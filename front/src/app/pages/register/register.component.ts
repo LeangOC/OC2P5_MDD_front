@@ -4,10 +4,8 @@ import {FormsModule} from "@angular/forms";
 @Component({
   selector: 'app-register',
   templateUrl: './register.component.html',
-  imports: [
-    FormsModule
-  ],
-  styleUrls: ['./register.component.scss']
+  styleUrls: ['./register.component.scss'],
+  standalone: false
 })
 export class RegisterComponent {
 userEmail: string = 'nom@Openclassrooms';
