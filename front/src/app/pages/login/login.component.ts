@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
-import { UserService } from '../../services/user.service';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-login',
@@ -11,10 +11,11 @@ import { UserService } from '../../services/user.service';
 export class LoginComponent {
 
   errorMessage = '';
+  successMessage = '';
 
   constructor(
     private fb: FormBuilder,
-    private userService: UserService
+    private authService: AuthService
   ) {}
 
   loginForm = this.fb.group({
@@ -28,29 +29,33 @@ export class LoginComponent {
       return;
     }
 
+    this.errorMessage = '';
+    this.successMessage = '';
+
     const email =
       this.loginForm.value.email ?? '';
 
     const password =
       this.loginForm.value.password ?? '';
 
-    const user =
-      this.userService.login(
-        email,
-        password
-      );
+    this.authService
+      .login(email, password)
+      .subscribe({
+        next: (response: string) => {
 
-    if (user) {
+          console.log(response);
 
-      alert(
-        `Bienvenue ${user.username}`
-      );
+          this.successMessage = response;
 
-    } else {
+        },
+        error: (error) => {
 
-      this.errorMessage =
-        'Email ou mot de passe incorrect';
+          console.error(error);
 
-    }
+          this.errorMessage =
+            'Email ou mot de passe incorrect';
+
+        }
+      });
   }
 }

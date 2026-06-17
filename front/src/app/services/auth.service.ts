@@ -28,4 +28,21 @@ export class AuthService {
       }
     );
   }
+
+  login(
+    email: string,
+    password: string
+  ): Observable<string> {
+
+    return this.http.post(
+      `${this.apiUrl}/login`,
+      {
+        email,
+        password
+      },
+      {
+        responseType: 'text'
+      }
+    );
+  }
 }

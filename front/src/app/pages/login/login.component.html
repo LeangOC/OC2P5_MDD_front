@@ -50,13 +50,14 @@
       type="submit">
       Se connecter
     </button>
-    <p
-      *ngIf="errorMessage"
-      class="error">
+    <p *ngIf="successMessage" class="success">
+      {{ successMessage }}
+    </p>
 
+    <p *ngIf="errorMessage" class="error">
       {{ errorMessage }}
-
     </p>
   </form>
 
 </div>
+
