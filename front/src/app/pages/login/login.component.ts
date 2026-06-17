@@ -1,4 +1,6 @@
 import { Component } from '@angular/core';
+import { FormBuilder, Validators } from '@angular/forms';
+import { UserService } from '../../services/user.service';
 
 @Component({
   selector: 'app-login',
@@ -8,12 +10,47 @@ import { Component } from '@angular/core';
 })
 export class LoginComponent {
 
-  email: string = '';
-  password: string = '';
+  errorMessage = '';
+
+  constructor(
+    private fb: FormBuilder,
+    private userService: UserService
+  ) {}
+
+  loginForm = this.fb.group({
+    email: ['', Validators.required],
+    password: ['', Validators.required]
+  });
 
   onSubmit(): void {
-    console.log('Email :', this.email);
-    console.log('Password :', this.password);
-  }
 
+    if (this.loginForm.invalid) {
+      return;
+    }
+
+    const email =
+      this.loginForm.value.email ?? '';
+
+    const password =
+      this.loginForm.value.password ?? '';
+
+    const user =
+      this.userService.login(
+        email,
+        password
+      );
+
+    if (user) {
+
+      alert(
+        `Bienvenue ${user.username}`
+      );
+
+    } else {
+
+      this.errorMessage =
+        'Email ou mot de passe incorrect';
+
+    }
+  }
 }
