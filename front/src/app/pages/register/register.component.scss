@@ -1,11 +1,15 @@
 .register-page {
   min-height: 100vh;
-  background: white;
+  background: #ffffff;
 
   display: flex;
   flex-direction: column;
   align-items: center;
 }
+
+/* =======================================
+   HEADER
+======================================= */
 
 .register-header {
   width: 100%;
@@ -25,81 +29,55 @@
   margin-left: 20px;
 }
 
-.back-btn {
-  border: none;
-  background: transparent;
-
-  font-size: 32px;
-  cursor: pointer;
-}
-
 .mobile-logo {
   display: none;
 }
+
+/* =======================================
+   TITRE
+======================================= */
 
 h1 {
   margin-top: 40px;
   margin-bottom: 30px;
 
-  font-family: "Inter", sans-serif;
   font-size: 24px;
-  font-weight: 400;
+  font-weight: 500;
 }
+
+/* =======================================
+   FORMULAIRE
+======================================= */
 
 .register-form {
-  width: 250px;
+  width: 100%;
+  max-width: 400px;
 
   display: flex;
   flex-direction: column;
-}
 
-.field {
-  display: flex;
-  flex-direction: column;
-
-  margin-bottom: 24px;
-}
-
-.field label {
-  margin-bottom: 8px;
-
-  font-family: "Inter", sans-serif;
-  font-size: 16px;
-  font-weight: 400;
-}
-
-.field input {
-  width: 250px;
-  height: 50px;
-
-  border: 1px solid black;
-  border-radius: 8px;
-
-  padding: 0 12px;
+  padding: 0 20px;
   box-sizing: border-box;
 }
 
-.submit-btn {
-  width: 128px;
-  height: 40px;
-
-  align-self: center;
-
-  background: #7763C5;
-
-  border: none;
-  border-radius: 8px;
-
-  color: white;
-
-  font-family: "Inter", sans-serif;
-  font-size: 16px;
-  font-weight: 700;
-
-  cursor: pointer;
+/* Les mat-form-field prennent toute la largeur */
+mat-form-field {
+  width: 100%;
+  margin-bottom: 8px;
 }
 
-@media screen and (max-width: 600px) {
+.submit-btn {
+  width: 160px;
+  align-self: center;
+
+  margin-top: 16px;
+}
+
+/* =======================================
+   MOBILE
+======================================= */
+
+@media screen and (max-width: 768px) {
 
   .register-header {
     height: 60px;
@@ -117,15 +95,15 @@ h1 {
     height: auto;
 
     margin-top: 5px;
-    margin-bottom: 10px;
+    margin-bottom: 20px;
   }
 
   h1 {
     margin-top: 0;
-    margin-bottom: 15px;
+    margin-bottom: 20px;
   }
 
-  .field {
-    margin-bottom: 15px;
+  .register-form {
+    max-width: 300px;
   }
 }

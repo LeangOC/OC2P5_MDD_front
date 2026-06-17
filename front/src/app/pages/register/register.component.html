@@ -3,9 +3,10 @@
   <header class="register-header">
 
     <button
-      class="back-btn"
-      routerLink="/">
-      ←
+      mat-icon-button
+      routerLink="/"
+      aria-label="Retour">
+      <mat-icon>arrow_back</mat-icon>
     </button>
 
     <img
@@ -22,36 +23,42 @@
 
   <h1>Inscription</h1>
 
-  <form class="register-form" (ngSubmit)="onSubmitForme()">
+  <form
+    class="register-form"
+    (ngSubmit)="onSubmitForme()">
 
-    <div class="field">
-      <label>Nom d'utilisateur</label>
-      <input type="text"
-      name="userName"
-             [(ngModel)]="userName"
-      >
-    </div>
+    <mat-form-field appearance="outline">
+      <mat-label>Nom d'utilisateur</mat-label>
+      <input
+        matInput
+        name="userName"
+        [(ngModel)]="userName">
+    </mat-form-field>
 
-    <div class="field">
-      <label>Adresse e-mail</label>
-      <input type="email"
-      name="userEmail"
-             [(ngModel)]="userEmail"
-      >
-    </div>
+    <mat-form-field appearance="outline">
+      <mat-label>Adresse e-mail</mat-label>
+      <input
+        matInput
+        type="email"
+        name="userEmail"
+        [(ngModel)]="userEmail">
+    </mat-form-field>
 
-    <div class="field">
-      <label>Mot de passe</label>
-      <input type="password">
-    </div>
+    <mat-form-field appearance="outline">
+      <mat-label>Mot de passe</mat-label>
+      <input
+        matInput
+        type="password">
+    </mat-form-field>
 
     <button
-      type="submit"
-      class="submit-btn">
+      mat-raised-button
+      color="primary"
+      class="submit-btn btn-rounded"
+      type="submit">
       S'inscrire
     </button>
 
   </form>
 
 </div>
-
