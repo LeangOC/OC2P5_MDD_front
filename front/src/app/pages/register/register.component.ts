@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import {FormBuilder, Validators} from "@angular/forms";
 import {AuthService} from "../../services/auth.service";
-
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-register',
@@ -14,7 +14,8 @@ userEmail: string = 'nom@Openclassrooms';
 userName: string = '';
   constructor(
     private fb: FormBuilder,
-    private authService: AuthService
+    private authService: AuthService,
+    private router: Router
   ) {}
 
   registerForm = this.fb.group({
@@ -24,19 +25,15 @@ userName: string = '';
   });
 
   onSubmit(): void {
-     if (this.registerForm.invalid) {
+
+    if (this.registerForm.invalid) {
       return;
     }
 
     const user = {
-      username:
-        this.registerForm.value.username ?? '',
-
-      email:
-        this.registerForm.value.email ?? '',
-
-      password:
-        this.registerForm.value.password ?? ''
+      username: this.registerForm.value.username ?? '',
+      email: this.registerForm.value.email ?? '',
+      password: this.registerForm.value.password ?? ''
     };
 
     this.authService
@@ -45,22 +42,26 @@ userName: string = '';
 
         next: (message) => {
 
-          alert(message);
+          console.log('Inscription réussie :', message);
 
-          console.log(
-            'Utilisateur créé'
-          );
+          this.router.navigate(['/articleform']);
         },
 
         error: (error) => {
 
-          console.error(error);
+          console.error('Erreur complète :', error);
 
           alert(
-            'Erreur lors de la création'
+            `Erreur lors de la création
+
+        Status : ${error.status}
+        Message : ${error.message}
+        URL : ${error.url}
+        Réponse : ${error.error}`
           );
-        },
+        }
 
       });
+
   }
 }

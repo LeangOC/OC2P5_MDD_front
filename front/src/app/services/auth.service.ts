@@ -10,7 +10,7 @@ import { User } from '../models/user';
 export class AuthService {
 
   private apiUrl =
-    'http://localhost:8080/api/auth';
+    'http://192.168.0.16:8080/api/auth';
 
   constructor(
     private http: HttpClient
