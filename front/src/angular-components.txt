@@ -1,0 +1,1027 @@
+===== FILE: ./app/app.component.ts =====
+import { Component, OnInit } from '@angular/core';
+import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
+import { Observable, filter, interval, observable } from 'rxjs';
+import { HomeComponent } from './pages/home/home.component';
+import { LoginComponent } from './auth/components/login/login.component';
+import { RegisterComponent } from './auth/components/register/register.component';
+
+@Component({
+  selector: 'app-root',
+  templateUrl: './app.component.html',
+  styleUrls: ['./app.component.scss'],
+  standalone: false
+})
+export class AppComponent implements OnInit {
+  title = 'front';
+
+  headerType!: HeaderType;
+  HeaderTypeEnum = HeaderType; // Ceci créera une référence à l'enum que nous pouvons utiliser dans le template
+
+  showHeader = true;
+
+  constructor(private router: Router, private activatedRoute: ActivatedRoute) {}
+
+  ngOnInit() {
+    this.router.events
+      .pipe(filter((event) => event instanceof NavigationEnd))
+      .subscribe(() => {
+        const activeComponent = this.getActiveComponent(this.activatedRoute);
+        if (activeComponent === HomeComponent) {
+          this.headerType = HeaderType.HomeHeader;
+        } else if (
+          activeComponent === LoginComponent ||
+          activeComponent === RegisterComponent
+        ) {
+          // check if the component is the login component or the regi
+          this.headerType = HeaderType.LoginHeader;
+        } else {
+          this.headerType = HeaderType.MddHeader;
+        }
+      });
+  }
+
+  // tente de trouver le composant associé à la route donnée. Si la route n'a pas
+  // de composant (comme c'est le cas pour une route avec des routes enfants),
+  // elle tente de le trouver récursivement en parcourant les routes enfants.
+  getActiveComponent(route: ActivatedRoute): any {
+    if (route.routeConfig && route.routeConfig.component) {
+      return route.routeConfig.component;
+    } else if (route.firstChild) {
+      return this.getActiveComponent(route.firstChild);
+    }
+    return null;
+  }
+}
+
+export enum HeaderType {
+  HomeHeader,
+  LoginHeader,
+  MddHeader,
+}
+
+===== FILE: ./app/auth/components/login/login.component.ts =====
+import {
+  AfterViewInit,
+  Component,
+  ElementRef,
+  OnDestroy,
+  OnInit,
+  ViewChild,
+} from '@angular/core';
+import { Router } from '@angular/router';
+import { AuthService } from '../../../core/services/auth.service';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { takeUntil } from 'rxjs/internal/operators/takeUntil';
+import { Subject } from 'rxjs';
+import { SessionService } from 'src/app/core/services/session.service';
+import { User } from 'src/app/core/models/User';
+import { PasswordValidator } from 'src/app/shared/validators/password.validator';
+
+@Component({
+  selector: 'app-login',
+  templateUrl: './login.component.html',
+  styleUrls: ['./login.component.scss'],
+  standalone:false
+})
+export class LoginComponent implements OnInit, AfterViewInit, OnDestroy {
+  loginForm!: FormGroup;
+  message: string | null = null;
+  errorMessage: string | null = null;
+  @ViewChild('email', { static: false })
+  login!: ElementRef;
+
+  private unsubscribe$: Subject<boolean> = new Subject<boolean>();
+
+  constructor(
+    private formeBuilder: FormBuilder,
+    private auth: AuthService,
+    private router: Router,
+    private session: SessionService
+  ) {}
+
+  ngOnInit(): void {
+    this.loginForm = this.formeBuilder.group({
+      login: [null, [Validators.required]],
+      password: [null, [Validators.required, PasswordValidator]],
+    });
+  }
+
+  ngAfterViewInit(): void {
+    Promise.resolve().then(() => this.login.nativeElement.focus());
+  }
+
+  submit() {
+    if (this.loginForm.valid) {
+      this.auth
+        .login(this.loginForm.value)
+        .pipe()
+        .subscribe({
+          next: (message) => {
+            this.handleSuccess('User logged successfully', message.token);
+          },
+          error: (error) => {
+            this.handleError('Failed to log user');
+          },
+        });
+    }
+  }
+
+  handleSuccess(message: string, token: string) {
+    // Sauvegardez le token dans le localStorage
+    localStorage.setItem('token', token);
+
+    // Affichez le message
+    console.log(message);
+    this.message = message;
+
+    // mémoriser l'utilisateur
+    this.auth.getCurrentUser().subscribe((user: User) => {
+      this.session.logIn(user);
+
+      // Redirigez vers la page désirée
+      this.router.navigateByUrl('/mdd/article');
+    });
+  }
+
+  handleError(message: string) {
+    console.error(message);
+    this.errorMessage = message;
+  }
+
+  ngOnDestroy(): void {
+    this.unsubscribe$.next(true);
+
+    // Unsubscribe from the subjectService
+    this.unsubscribe$.unsubscribe();
+  }
+}
+
+===== FILE: ./app/auth/components/register/register.component.ts =====
+import {
+  AfterViewInit,
+  Component,
+  ElementRef,
+  OnDestroy,
+  OnInit,
+  ViewChild,
+} from '@angular/core';
+import { Router } from '@angular/router';
+import { AuthService } from '../../../core/services/auth.service';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { takeUntil } from 'rxjs/internal/operators/takeUntil';
+import { Subject } from 'rxjs';
+import { User } from 'src/app/core/models/User';
+import { SessionService } from 'src/app/core/services/session.service';
+import { PasswordValidator } from 'src/app/shared/validators/password.validator';
+
+@Component({
+  selector: 'app-register',
+  templateUrl: './register.component.html',
+  styleUrls: ['./register.component.scss'],
+  standalone:false
+})
+export class RegisterComponent implements OnInit, AfterViewInit, OnDestroy {
+  registerForm!: FormGroup;
+  message: string | null = null;
+  errorMessage: string | null = null;
+  @ViewChild('usernameInput', { static: false }) usernameInput!: ElementRef;
+
+  private unsubscribe$: Subject<boolean> = new Subject<boolean>();
+
+  constructor(
+    private formeBuilder: FormBuilder,
+    private auth: AuthService,
+    private router: Router,
+    private session: SessionService
+  ) {}
+
+  ngOnInit(): void {
+    this.registerForm = this.formeBuilder.group({
+      username: [null, [Validators.required]],
+      email: [null, [Validators.required, Validators.email]],
+      password: [null, [Validators.required, PasswordValidator]],
+    });
+  }
+
+  ngAfterViewInit(): void {
+    Promise.resolve().then(() => this.usernameInput.nativeElement.focus());
+  }
+
+  submit() {
+    if (this.registerForm.valid) {
+      console.log('ça envoie ce qui suit: ' + this.registerForm.value);
+
+      this.auth
+        .register(this.registerForm.value)
+        .pipe()
+        .subscribe({
+          next: (message) => {
+            this.handleSuccess('User created successfully', message.token);
+          },
+          error: (error) => {
+            this.handleError('Failed to create user');
+          },
+        });
+    }
+  }
+
+  handleSuccess(message: string, token: string) {
+    // Sauvegardez le token dans le localStorage
+    localStorage.setItem('token', token);
+
+    // Affichez le message
+    console.log(message);
+    this.message = message;
+
+    // mémoriser l'utilisateur
+    this.auth.getCurrentUser().subscribe((user: User) => {
+      this.session.logIn(user);
+
+      // Redirigez vers la page désirée
+      this.router.navigateByUrl('/mdd/article');
+    });
+  }
+
+  handleError(message: string) {
+    console.error(message);
+    this.errorMessage = message;
+  }
+
+  ngOnDestroy(): void {
+    this.unsubscribe$.next(true);
+
+    // Unsubscribe from the subjectService
+    this.unsubscribe$.unsubscribe();
+  }
+}
+
+===== FILE: ./app/core/components/header/header.component.ts =====
+import {
+  ChangeDetectorRef,
+  Component,
+  EventEmitter,
+  Input,
+  OnInit,
+  Output,
+} from '@angular/core';
+import { HeaderType } from 'src/app/app.component';
+
+@Component({
+  selector: 'app-header',
+  templateUrl: './header.component.html',
+  styleUrls: ['./header.component.scss'],
+  standalone:false
+})
+export class HeaderComponent implements OnInit {
+  @Output() toggleSidenav = new EventEmitter<void>();
+  @Input() headerType!: HeaderType;
+  HeaderTypeEnum = HeaderType; // Ceci créera une référence à l'enum que nous pouvons utiliser dans le template
+
+  constructor(private cdRef: ChangeDetectorRef) {}
+
+  ngOnInit(): void {}
+
+  onMenuClick() {
+    this.toggleSidenav.emit();
+    this.cdRef.detectChanges();
+  }
+}
+
+===== FILE: ./app/core/components/navigation-items/navigation-items.component.ts =====
+import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
+
+@Component({
+  selector: 'app-navigation-items',
+  templateUrl: './navigation-items.component.html',
+  styleUrls: ['./navigation-items.component.scss'],
+  standalone:false
+})
+export class NavigationItemsComponent implements OnInit {
+  constructor(private router: Router) {}
+
+  ngOnInit(): void {}
+
+  naviguerVersUserInfo() {
+    this.router.navigateByUrl('/mdd/me');
+  }
+}
+
+===== FILE: ./app/mdd/components/article/article-detail/article-detail.component.ts =====
+import { Component, OnInit } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
+import { Observable, catchError, takeUntil, throwError } from 'rxjs';
+import { Article } from 'src/app/core/models/Article';
+import { ArticleWithComments } from 'src/app/core/models/ArticleWithComments';
+import { ArticlesService } from 'src/app/mdd/services/articles.service';
+
+@Component({
+  selector: 'app-article-detail',
+  templateUrl: './article-detail.component.html',
+  styleUrls: ['./article-detail.component.scss'],
+  standalone:false
+})
+export class ArticleDetailComponent implements OnInit {
+  articleId!: string | null;
+  article$!: Observable<ArticleWithComments>;
+  message: string | null = null;
+  errorMessage: string | null = null;
+
+  constructor(
+    private route: ActivatedRoute,
+    private articleService: ArticlesService
+  ) {}
+
+  ngOnInit(): void {
+    this.articleId = this.route.snapshot.paramMap.get('id');
+    if (this.articleId != null) {
+      this.article$ = this.articleService.getArticleById(this.articleId);
+    } else {
+      console.log('articleId is null');
+    }
+  }
+
+  handleNewComment(comment: string) {
+    const articleCommented = { comment, articleId: Number(this.articleId) };
+    this.onArticleCommented(articleCommented);
+  }
+
+  handleSuccess(message: string) {
+    console.log(message);
+    this.message = message;
+  }
+
+  handleError(message: string) {
+    console.error(message);
+    this.errorMessage = message;
+  }
+
+  onArticleCommented(articleCommented: { comment: string; articleId: number }) {
+    this.articleService.addNewComment(articleCommented).subscribe({
+      next: (message) => {
+        this.handleSuccess('Comment created successfully');
+
+        // Reload the articles
+        this.article$ = this.reloadArticles();
+      },
+      error: (error) => {
+        this.handleError('Failed to create Comment');
+      },
+    });
+  }
+
+  private reloadArticles(): Observable<ArticleWithComments> {
+    return this.articleService.getArticleById(this.articleId).pipe(
+      catchError((error) => {
+        console.error(error);
+        this.errorMessage = 'Error fetching articles';
+        return throwError(() => new Error('Error fetching articles'));
+      })
+    );
+  }
+}
+
+===== FILE: ./app/mdd/components/article/article-list/article-list.component.ts =====
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
+import { Observable, Subject, map } from 'rxjs';
+import { Article } from 'src/app/core/models/Article';
+
+@Component({
+  selector: 'app-article-list',
+  templateUrl: './article-list.component.html',
+  styleUrls: ['./article-list.component.scss'],
+  standalone:false
+})
+export class ArticleListComponent implements OnInit, OnDestroy {
+  articles$!: Observable<Article[]>;
+  message: string | null = null;
+  errorMessage: string | null = null;
+
+  private unsubscribe$: Subject<boolean> = new Subject<boolean>();
+
+  constructor(private route: ActivatedRoute, private router: Router) {}
+
+  ngOnInit(): void {
+    this.articles$ = this.route.data.pipe(map((data) => data['articles']));
+  }
+
+  CreateArticle() {
+    this.router.navigateByUrl('/mdd/article/article-form');
+  }
+
+  sortArticles(criterion: 'title' | 'content' | 'publishedAt') {
+    this.articles$ = this.articles$.pipe(
+      map((articles: Article[]) =>
+        articles.sort((a, b) => {
+          if (a[criterion] > b[criterion]) {
+            return 1;
+          }
+          if (a[criterion] < b[criterion]) {
+            return -1;
+          }
+          return 0;
+        })
+      )
+    );
+  }
+
+  ngOnDestroy(): void {
+    this.unsubscribe$.next(true);
+
+    // Unsubscribe from the subjectService
+    this.unsubscribe$.unsubscribe();
+  }
+}
+
+===== FILE: ./app/mdd/components/article/article-list-item/article-list-item.component.ts =====
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Article } from '../../../../core/models/Article';
+import { Router } from '@angular/router';
+
+@Component({
+  selector: 'app-article-list-item',
+  templateUrl: './article-list-item.component.html',
+  styleUrls: ['./article-list-item.component.scss'],
+  standalone:false
+})
+export class ArticleListItemComponent implements OnInit {
+  @Input() article!: Article;
+
+  constructor(private router: Router) {}
+
+  ngOnInit(): void {}
+
+  showArticleDetails() {
+    this.router.navigate(['mdd/article/article-detail/', this.article.id]);
+    //console.log('showArticleDetails');
+  }
+}
+
+===== FILE: ./app/mdd/components/article/articleform/articleform.component.ts =====
+import { Component, OnInit } from '@angular/core';
+import { NgForm } from '@angular/forms';
+import { ArticlesService } from '../../../services/articles.service';
+import { Router } from '@angular/router';
+import { Subject as MySubject } from '../../../../core/models/Subject';
+import { SubjectService } from 'src/app/core/services/subject.service';
+import { SessionService } from 'src/app/core/services/session.service';
+
+@Component({
+  selector: 'app-articleform',
+  templateUrl: './articleform.component.html',
+  styleUrls: ['./articleform.component.scss'],
+  standalone:false
+})
+export class ArticleformComponent implements OnInit {
+  themes: MySubject[] = []; // Remplacez MyTheme par le type de votre modèle de thème si différent
+  selectedTheme!: string; // Pour stocker le thème sélectionné
+  message: string | null = null;
+  errorMessage: string | null = null;
+
+  constructor(
+    private articleService: ArticlesService,
+    private router: Router,
+    private subjectService: SubjectService,
+    private sessionService: SessionService
+  ) {}
+
+  ngOnInit() {
+    this.subjectService.getSubjects().subscribe({
+      next: (subjects) => {
+        this.themes = subjects;
+      },
+      error: (error) => {
+        console.error('Failed to load subjects', error);
+      },
+    });
+  }
+
+  handleSuccess(message: string) {
+    console.log(message);
+    this.message = message;
+    this.router.navigateByUrl('/mdd/article');
+  }
+
+  handleError(message: string) {
+    console.error(message);
+    this.errorMessage = message;
+  }
+
+  onCreateArticle(form: NgForm) {
+    if (form.valid) {
+      const articleData = {
+        userId: this.sessionService.user.id.toString(),
+        subjectId: form.value.theme,
+        title: form.value.title,
+        content: form.value.content,
+      };
+
+      this.articleService.createArticle(articleData).subscribe({
+        next: (message) => {
+          this.handleSuccess('Article created successfully');
+        },
+        error: (error) => {
+          this.handleError('Failed to create Article');
+        },
+      });
+    }
+  }
+}
+
+===== FILE: ./app/mdd/components/me/me.component.ts =====
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { Router } from '@angular/router';
+import { Subject, filter, map, takeUntil, tap } from 'rxjs';
+import { Subject as MySubject } from 'src/app/core/models/Subject';
+import { User } from 'src/app/core/models/User';
+import { AuthService } from 'src/app/core/services/auth.service';
+import { SessionService } from 'src/app/core/services/session.service';
+import { SubjectService } from 'src/app/core/services/subject.service';
+import { SubscriptionService } from 'src/app/core/services/subscriptionService';
+
+@Component({
+  selector: 'app-me',
+  templateUrl: './me.component.html',
+  styleUrls: ['./me.component.scss'],
+  standalone:false
+})
+export class MeComponent implements OnInit, OnDestroy {
+  profileForm!: FormGroup;
+  subjects: MySubject[] = [];
+  errorMessage: string | null = null;
+  currentUser!: User;
+  message: string | null = null;
+
+  private unsubscribe$: Subject<boolean> = new Subject<boolean>();
+
+  constructor(
+    private subjectService: SubjectService,
+    private subscriptionService: SubscriptionService,
+    private sessionService: SessionService,
+    private router: Router,
+    private formeBuilder: FormBuilder,
+    private authService: AuthService
+  ) {}
+
+  ngOnInit(): void {
+    this.getUnsubscribedSubjects();
+
+    this.currentUser = this.sessionService.user;
+
+    this.profileForm = this.formeBuilder.group({
+      username: [null, [Validators.required]],
+      email: [null, [Validators.required, Validators.email]],
+    });
+  }
+
+  onSave() {
+    if (this.profileForm.valid) {
+      console.log(this.profileForm.value);
+      this.authService
+        .updateUser(this.currentUser.id.toString(), this.profileForm.value)
+        .pipe()
+        .subscribe({
+          next: (message) => {
+            this.handleSuccess('User updated successfully', message.token);
+          },
+          error: (error) => {
+            this.handleError('Failed to update user');
+          },
+        });
+    }
+  }
+
+  handleSuccess(message: string, token: string) {
+    // Sauvegardez le token dans le localStorage
+    localStorage.setItem('token', token);
+
+    // Affichez le message
+    console.log(message);
+    this.message = message;
+
+    // mémoriser les nouvelles données de l'utilisateur
+    this.authService.getCurrentUser().subscribe((user: User) => {
+      this.sessionService.logIn(user);
+    });
+  }
+
+  handleError(message: string) {
+    console.error(message);
+    this.errorMessage = message;
+  }
+
+  getUnsubscribedSubjects(): void {
+    this.subjectService
+      .getSubjects()
+      .pipe(
+        map((subjects) => subjects.filter((subject) => subject.followed)),
+        tap({
+          next: (subjects) => {
+            this.subjects = subjects;
+            console.log(subjects);
+          },
+          error: (error) => {
+            console.error(error);
+            this.errorMessage = 'Error fetching subjects';
+          },
+        }),
+        takeUntil(this.unsubscribe$)
+      )
+      .subscribe();
+  }
+
+  onSubscribeSubject(subject: MySubject) {
+    if (!subject) return; // S'assurer que le sujet existe
+
+    const userId: number = this.currentUser.id;
+
+    if (subject.followed) {
+      this.subscriptionService
+        .unsubscribeSubject(subject.id, userId)
+        .subscribe(() => {
+          subject.followed = false;
+        });
+    } else {
+      this.subscriptionService
+        .subscribeToSubject(subject.id, userId)
+        .subscribe(() => {
+          subject.followed = true;
+        });
+    }
+  }
+
+  onLogoutClick() {
+    this.sessionService.logOut();
+
+    // Redirigez vers la page d'accueil
+    this.router.navigateByUrl('/');
+  }
+
+  ngOnDestroy(): void {
+    this.unsubscribe$.next(true);
+
+    // Unsubscribe from the subjectService
+    this.unsubscribe$.unsubscribe();
+  }
+}
+
+===== FILE: ./app/mdd/components/subject/subject-detail/subject-detail.component.ts =====
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
+import { Observable, Subject, catchError, throwError } from 'rxjs';
+import { Subject as MySubject } from 'src/app/core/models/Subject';
+import { SubjectService } from '../../../../core/services/subject.service';
+
+@Component({
+  selector: 'app-subject-detail',
+  templateUrl: './subject-detail.component.html',
+  styleUrls: ['./subject-detail.component.scss'],
+  standalone:false
+})
+export class SubjectDetailComponent implements OnInit {
+  public subjectId: string;
+  public subject$!: Observable<MySubject>;
+  errorMessage: string | null = null;
+
+  constructor(
+    private router: Router,
+    private route: ActivatedRoute,
+    private subjectService: SubjectService
+  ) {
+    this.subjectId = this.route.snapshot.paramMap.get('id')!;
+  }
+
+  ngOnInit(): void {
+    this.subject$ = this.fetchSubject();
+  }
+
+  private fetchSubject(): Observable<MySubject> {
+    return this.subjectService.getSubjectById(this.subjectId).pipe(
+      catchError((error) => {
+        console.error(error);
+        this.errorMessage = 'Error fetching subject';
+        return throwError(() => new Error('Error fetching subject'));
+      })
+    );
+  }
+
+  goBack(): void {
+    this.router.navigateByUrl('/mdd/subjects'); // Navigate back to the list of subjects
+  }
+}
+
+===== FILE: ./app/mdd/components/subject/subject-list-item/subject-list-item.component.ts =====
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Subject as MySubject } from 'src/app/core/models/Subject';
+
+@Component({
+  selector: 'app-subject-list-item',
+  templateUrl: './subject-list-item.component.html',
+  styleUrls: ['./subject-list-item.component.scss'],
+  standalone:false
+})
+export class SubjectListItemComponent implements OnInit {
+  @Input() subject!: MySubject;
+  @Output() subscribeEvent = new EventEmitter<void>();
+
+  constructor() {}
+
+  ngOnInit(): void {}
+}
+
+===== FILE: ./app/mdd/components/subject/subjectform/subjectform.component.ts =====
+import {
+  AfterViewInit,
+  Component,
+  ElementRef,
+  OnDestroy,
+  OnInit,
+  ViewChild,
+} from '@angular/core';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
+import { SubjectService } from '../../../../core/services/subject.service';
+import { Subject } from 'rxjs/internal/Subject';
+import { takeUntil } from 'rxjs/internal/operators/takeUntil';
+
+@Component({
+  selector: 'app-subject-form',
+  templateUrl: './SubjectForm.component.html',
+  styleUrls: ['./SubjectForm.component.scss'],
+  standalone:false
+})
+export class SubjectFormComponent implements OnInit, AfterViewInit, OnDestroy {
+  subjectForm!: FormGroup;
+  isEdit: boolean = false;
+  message: string | null = null;
+  errorMessage: string | null = null;
+  public subjectId: string | null = null;
+  @ViewChild('nameInput', { static: false }) nameInput!: ElementRef;
+
+  private unsubscribe$: Subject<boolean> = new Subject<boolean>();
+
+  constructor(
+    private formeBuilder: FormBuilder,
+    private subjectService: SubjectService,
+    private router: Router,
+    private route: ActivatedRoute
+  ) {}
+
+  public ngOnInit(): void {
+    this.subjectForm = this.formeBuilder.group({
+      name: [null, Validators.required],
+    });
+
+    // Get the subjectId from the route
+    this.subjectId = this.route.snapshot.paramMap.get('id');
+    if (this.subjectId) {
+      // Load the subject from the server and initialize the form
+      this.subjectService
+        .getSubjectById(this.subjectId)
+        .subscribe((subject) => {
+          this.subjectForm.patchValue(subject);
+          // Set isEdit to true here
+          this.isEdit = true;
+        });
+    }
+  }
+
+  ngAfterViewInit(): void {
+    Promise.resolve().then(() => this.nameInput.nativeElement.focus());
+  }
+
+  getSubjectIdFromRoute(): string | null {
+    return this.route.snapshot.paramMap.get('id');
+  }
+
+  handleSuccess(message: string) {
+    console.log(message);
+    this.message = message;
+    this.router.navigateByUrl('/mdd/subjects');
+  }
+
+  handleError(message: string) {
+    console.error(message);
+    this.errorMessage = message;
+  }
+
+  updateSubject(id: string | null) {
+    if (!id) {
+      this.handleError('No subject id found in the route for editing');
+      return;
+    }
+    this.subjectService
+      .updateSubject(id, this.subjectForm.value)
+      .pipe(takeUntil(this.unsubscribe$))
+      .subscribe({
+        next: (message) => {
+          this.handleSuccess('Subject updated successfully');
+        },
+        error: (error) => {
+          this.handleError('Failed to update Subject');
+        },
+      });
+  }
+
+  createSubject() {
+    this.subjectService
+      .addSubject(this.subjectForm.value)
+      .pipe(takeUntil(this.unsubscribe$))
+      .subscribe({
+        next: (message) => {
+          this.handleSuccess('Subject created successfully');
+        },
+        error: (error) => {
+          this.handleError('Failed to create Subject');
+        },
+      });
+  }
+
+  onSubmitForm(): void {
+    if (this.isEdit) {
+      this.updateSubject(this.getSubjectIdFromRoute());
+    } else {
+      this.createSubject();
+    }
+  }
+
+  ngOnDestroy(): void {
+    this.unsubscribe$.next(true);
+
+    // Unsubscribe from the subjectService
+    this.unsubscribe$.unsubscribe();
+  }
+}
+
+===== FILE: ./app/mdd/components/subject/subjects/subjects.component.ts =====
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Subject as MySubject } from 'src/app/core/models/Subject';
+import { SubjectService } from '../../../../core/services/subject.service';
+import { Observable, Subject, interval } from 'rxjs';
+import { takeUntil, tap } from 'rxjs/operators';
+import { Router } from '@angular/router';
+import { SubscriptionService } from 'src/app/core/services/subscriptionService';
+import { SessionService } from 'src/app/core/services/session.service';
+
+@Component({
+  selector: 'app-subjects-component',
+  templateUrl: './subjects.component.html',
+  styleUrls: ['./subjects.component.scss'],
+  standalone:false
+})
+export class SubjectsComponent implements OnInit, OnDestroy {
+  subjects: MySubject[] = [];
+  errorMessage: string | null = null;
+
+  private unsubscribe$: Subject<boolean> = new Subject<boolean>();
+  isFollowed = false;
+
+  constructor(
+    private subjectService: SubjectService,
+    private router: Router,
+    private subscriptionService: SubscriptionService,
+    private sessionservice: SessionService
+  ) {}
+
+  ngOnInit(): void {
+    this.getSubjects();
+  }
+
+  getSubjects(): void {
+    this.subjectService
+      .getSubjects()
+      .pipe(
+        tap({
+          next: (subjects) => {
+            this.subjects = subjects;
+            console.log(subjects);
+          },
+          error: (error) => {
+            console.error(error);
+            this.errorMessage = 'Error fetching subjects';
+          },
+        }),
+        takeUntil(this.unsubscribe$)
+      )
+      .subscribe();
+  }
+
+  onDeleteSubject(subjectId: string): void {
+    this.subjectService
+      .deleteSubject(subjectId)
+      .pipe(takeUntil(this.unsubscribe$))
+      .subscribe({
+        next: (message) => {
+          console.log(message); // "Subject delete successfully"
+          this.getSubjects();
+        },
+        error: (error) => {
+          console.error(error);
+          this.errorMessage = 'Error deleting subject';
+        },
+      });
+  }
+
+  onSubjectDetail(subjectId: number): void {
+    this.router.navigateByUrl(`/mdd/subjects/${subjectId}`);
+  }
+
+  onAddSubjectForm(): void {
+    this.router.navigateByUrl('/mdd/subjects/subject-form');
+  }
+
+  onEditSubject(id: string) {
+    this.router.navigateByUrl(`/mdd/subjects/subject-form/${id}`);
+  }
+
+  onSubscribeSubject(subject: MySubject) {
+    if (!subject) return; // S'assurer que le sujet existe
+    const userId: number = this.sessionservice.user.id;
+    if (subject.followed) {
+      this.subscriptionService
+        .unsubscribeSubject(subject.id, userId)
+        .subscribe(() => {
+          subject.followed = false;
+        });
+    } else {
+      this.subscriptionService
+        .subscribeToSubject(subject.id, userId)
+        .subscribe(() => {
+          subject.followed = true;
+        });
+    }
+  }
+
+  ngOnDestroy(): void {
+    this.unsubscribe$.next(true);
+
+    // Unsubscribe from the subjectService
+    this.unsubscribe$.unsubscribe();
+  }
+}
+
+===== FILE: ./app/pages/home/home.component.ts =====
+import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
+
+@Component({
+  selector: 'app-home',
+  templateUrl: './home.component.html',
+  styleUrls: ['./home.component.scss'],
+  standalone : false
+})
+export class HomeComponent implements OnInit {
+  constructor(private router: Router) {}
+
+  ngOnInit(): void {}
+
+  onSignUp(): void {
+    this.router.navigateByUrl('/auth/register');
+  }
+
+  onSignIn(): void {
+    this.router.navigateByUrl('/auth/login');
+  }
+}
+
+===== FILE: ./app/shared/components/comments/comments.component.ts =====
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { FormBuilder, FormControl, Validators } from '@angular/forms';
+import { Comment } from 'src/app/core/models/comment';
+
+@Component({
+  selector: 'app-comments',
+  templateUrl: './comments.component.html',
+  styleUrls: ['./comments.component.scss'],
+  standalone:false
+})
+export class CommentsComponent implements OnInit {
+  @Input() comments!: Comment[];
+  @Output() newComment = new EventEmitter<string>();
+
+  commentCtrl!: FormControl;
+
+  constructor(private formBuilder: FormBuilder) {}
+
+  ngOnInit(): void {
+    console.log('CommentsComponent.ngOnInit()');
+
+    this.commentCtrl = this.formBuilder.control('', [
+      Validators.required,
+      Validators.minLength(10),
+      Validators.maxLength(1000),
+    ]);
+  }
+
+  onLeaveComment() {
+    if (this.commentCtrl.invalid) {
+      return;
+    }
+    this.newComment.emit(this.commentCtrl.value);
+    this.commentCtrl.reset();
+  }
+}
+

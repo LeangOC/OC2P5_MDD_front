@@ -1,21 +1,9 @@
-<div class="home-page">
-
-  <img
-    class="logo"
-    src="assets/logo_p6.png"
-    alt="Logo MDD"
-  />
-
-  <div class="actions">
-
-    <button mat-stroked-button class="btn-rounded" routerLink="/login">
-      Se connecter
-    </button>
-
-    <button mat-stroked-button class="btn-rounded" routerLink="/register">
-      S'inscrire
-    </button>
-
+<div class="center">
+  <img src="/assets/logo_p6.png" alt="logo" />
+  
+  <!-- Section des boutons -->
+  <div class="button-group">
+    <button mat-raised-button color="primary" (click)="onSignIn()">Se connecter</button>
+    <button mat-raised-button color="primary" (click)="onSignUp()">S'inscrire</button>
   </div>
-
 </div>
