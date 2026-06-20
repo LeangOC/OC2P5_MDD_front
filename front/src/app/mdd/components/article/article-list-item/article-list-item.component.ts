@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { Article } from '../../../../core/models/Article';
+import { Article } from '../../../../core/models/article';
 import { Router } from '@angular/router';
 
 @Component({

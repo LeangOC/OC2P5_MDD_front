@@ -1,7 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Observable, Subject, map } from 'rxjs';
-import { Article } from 'src/app/core/models/Article';
+import { Article } from 'src/app/core/models/article';
 
 @Component({
   selector: 'app-article-list',

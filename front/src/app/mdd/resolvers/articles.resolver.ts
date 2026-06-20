@@ -6,7 +6,7 @@ import {
 } from '@angular/router';
 import { ArticlesService } from '../services/articles.service';
 import { Observable } from 'rxjs';
-import { Article } from '../../core/models/Article';
+import { Article } from '../../core/models/article';
 
 @Injectable()
 export class ArticlesResolver implements Resolve<Article[]> {

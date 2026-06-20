@@ -1,60 +1,177 @@
+import {
+  describe,
+  beforeEach,
+  afterEach,
+  it,
+  expect,
+  jest
+} from '@jest/globals';
+
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { of } from 'rxjs';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
+
+import { of, throwError, firstValueFrom } from 'rxjs';
+
 import { SubjectDetailComponent } from './subject-detail.component';
-import { RouterTestingModule } from '@angular/router/testing';
-import { SubjectService } from '../../../../core/services/subject.service';
-import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { SubjectService } from 'src/app/core/services/subject.service';
 
 describe('SubjectDetailComponent', () => {
   let component: SubjectDetailComponent;
   let fixture: ComponentFixture<SubjectDetailComponent>;
-  let subjectService: SubjectService;
-  let router: Router;
+
+  let routerMock: {
+    navigateByUrl: jest.Mock;
+  };
+
+  let subjectServiceMock: {
+    getSubjectById: jest.Mock;
+  };
+
+  const subjectMock = {
+    id: 1,
+    name: 'Angular',
+    description: 'Angular subject',
+    followed: false
+  };
 
   beforeEach(async () => {
+    jest.spyOn(console, 'error').mockImplementation(() => {});
+
+    routerMock = {
+      navigateByUrl: jest.fn()
+    };
+
+    subjectServiceMock = {
+      getSubjectById: jest.fn().mockReturnValue(
+        of(subjectMock)
+      )
+    };
+
     await TestBed.configureTestingModule({
       declarations: [SubjectDetailComponent],
-      imports: [RouterTestingModule, HttpClientTestingModule], // Add RouterTestingModule to mock the Router
-      providers: [SubjectService], // Provide the SubjectService
-    }).compileComponents();
+      providers: [
+        {
+          provide: Router,
+          useValue: routerMock
+        },
+        {
+          provide: SubjectService,
+          useValue: subjectServiceMock
+        },
+        {
+          provide: ActivatedRoute,
+          useValue: {
+            snapshot: {
+              paramMap: {
+                get: jest.fn().mockReturnValue('1')
+              }
+            }
+          }
+        }
+      ]
+    })
+      .overrideComponent(SubjectDetailComponent, {
+        set: {
+          template: ''
+        }
+      })
+      .compileComponents();
+
+    fixture = TestBed.createComponent(
+      SubjectDetailComponent
+    );
+
+    component = fixture.componentInstance;
+
+    fixture.detectChanges();
   });
 
-  beforeEach(() => {
-    fixture = TestBed.createComponent(SubjectDetailComponent);
-    component = fixture.componentInstance;
-    subjectService = TestBed.inject(SubjectService); // Inject the SubjectService
-    router = TestBed.inject(Router); // Inject the Router
-    fixture.detectChanges();
+  afterEach(() => {
+    jest.clearAllMocks();
   });
 
   it('should create', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should fetch subject details from the service', () => {
-    const subjectId = '123';
-    const mockSubject = { id: 123, name: 'Subject 1' };
-    jest
-      .spyOn(subjectService, 'getSubjectById')
-      .mockReturnValue(of(mockSubject)); // Mock the getSubjectById method to return an observable of mock subject
-
-    // Trigger ngOnInit
-    component.ngOnInit();
-
-    // The subject$ observable should have the mock subject
-    component.subject$.subscribe((subject) => {
-      expect(subject).toEqual(mockSubject);
-    });
+  it('should read subject id from route', () => {
+    expect(component.subjectId)
+      .toBe('1');
   });
 
-  // it('should navigate back when goBack method is called', () => {
-  //   const routerSpy = jest.spyOn(router, 'navigate'); // Spy on the router.navigate method
+  it('should load subject on init', async () => {
+    const subject =
+      await firstValueFrom(component.subject$);
 
-  //   // Call the goBack method
-  //   component.goBack();
+    expect(subject)
+      .toEqual(subjectMock);
+  });
 
-  //   // Expect the router.navigate method to have been called with the expected URL
-  //   expect(routerSpy).toHaveBeenCalledWith('/mdd/subjects');
-  // });
+  it('should call subject service with route id', () => {
+    expect(subjectServiceMock.getSubjectById)
+      .toHaveBeenCalledWith('1');
+  });
+
+  it('should navigate back to subjects list', () => {
+    component.goBack();
+
+    expect(routerMock.navigateByUrl)
+      .toHaveBeenCalledWith('/mdd/subjects');
+  });
+
+  it('should expose observable subject$', () => {
+    expect(component.subject$)
+      .toBeDefined();
+  });
+
+  it('should set error message when service fails', async () => {
+    subjectServiceMock.getSubjectById.mockReturnValue(
+      throwError(() => new Error('API Error'))
+    );
+
+    const fixture =
+      TestBed.createComponent(
+        SubjectDetailComponent
+      );
+
+    const componentError =
+      fixture.componentInstance;
+
+    fixture.detectChanges();
+
+    await expect(
+      firstValueFrom(componentError.subject$)
+    ).rejects.toThrow(
+      'Error fetching subject'
+    );
+
+    expect(componentError.errorMessage)
+      .toBe('Error fetching subject');
+  });
+
+  it('should log error when service fails', async () => {
+    const consoleSpy =
+      jest.spyOn(console, 'error');
+
+    subjectServiceMock.getSubjectById.mockReturnValue(
+      throwError(() => new Error('API Error'))
+    );
+
+    const fixture =
+      TestBed.createComponent(
+        SubjectDetailComponent
+      );
+
+    const componentError =
+      fixture.componentInstance;
+
+    fixture.detectChanges();
+
+    try {
+      await firstValueFrom(componentError.subject$);
+    } catch {}
+
+    expect(consoleSpy)
+      .toHaveBeenCalled();
+  });
 });

@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Observable, catchError, takeUntil, throwError } from 'rxjs';
-import { Article } from 'src/app/core/models/Article';
+import { Article } from 'src/app/core/models/article';
 import { ArticleWithComments } from 'src/app/core/models/ArticleWithComments';
 import { ArticlesService } from 'src/app/mdd/services/articles.service';
 

@@ -1,113 +1,250 @@
 import {
-  ComponentFixture,
-  TestBed,
-  fakeAsync,
-  tick,
-} from '@angular/core/testing';
-import { SubjectService } from '../../../../core/services/subject.service';
-import { SubjectsComponent } from './subjects.component';
-import { of } from 'rxjs/internal/observable/of';
-import { HttpClientModule } from '@angular/common/http';
-import { throwError } from 'rxjs';
+  describe,
+  beforeEach,
+  afterEach,
+  it,
+  expect,
+  jest
+} from '@jest/globals';
+
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
+
+import { of, throwError } from 'rxjs';
+
+import { SubjectsComponent } from './subjects.component';
+import { SubjectService } from 'src/app/core/services/subject.service';
+import { SubscriptionService } from 'src/app/core/services/subscriptionService';
+import { SessionService } from 'src/app/core/services/session.service';
 
 describe('SubjectsComponent', () => {
   let component: SubjectsComponent;
   let fixture: ComponentFixture<SubjectsComponent>;
-  let router: Router;
-  let subjectService: SubjectService;
+
+  let subjectServiceMock: {
+    getSubjects: jest.Mock;
+    deleteSubject: jest.Mock;
+  };
+
+  let routerMock: {
+    navigateByUrl: jest.Mock;
+  };
+
+  let subscriptionServiceMock: {
+    subscribeToSubject: jest.Mock;
+    unsubscribeSubject: jest.Mock;
+  };
+
+  let sessionServiceMock: {
+    user: {
+      id: number;
+    };
+  };
+
+  const subjectsMock = [
+    {
+      id: 1,
+      name: 'Angular',
+      description: 'Angular description',
+      followed: false
+    },
+    {
+      id: 2,
+      name: 'Java',
+      description: 'Java description',
+      followed: true
+    }
+  ];
 
   beforeEach(async () => {
+    jest.spyOn(console, 'log').mockImplementation(() => {});
+    jest.spyOn(console, 'error').mockImplementation(() => {});
+
+    subjectServiceMock = {
+      getSubjects: jest.fn().mockReturnValue(of(subjectsMock)),
+      deleteSubject: jest.fn().mockReturnValue(of('deleted'))
+    };
+
+    routerMock = {
+      navigateByUrl: jest.fn()
+    };
+
+    subscriptionServiceMock = {
+      subscribeToSubject: jest.fn().mockReturnValue(of({})),
+      unsubscribeSubject: jest.fn().mockReturnValue(of({}))
+    };
+
+    sessionServiceMock = {
+      user: {
+        id: 99
+      }
+    };
+
     await TestBed.configureTestingModule({
       declarations: [SubjectsComponent],
-      imports: [HttpClientModule],
-      providers: [SubjectService],
-    }).compileComponents();
-  });
+      providers: [
+        {
+          provide: SubjectService,
+          useValue: subjectServiceMock
+        },
+        {
+          provide: Router,
+          useValue: routerMock
+        },
+        {
+          provide: SubscriptionService,
+          useValue: subscriptionServiceMock
+        },
+        {
+          provide: SessionService,
+          useValue: sessionServiceMock
+        }
+      ]
+    })
+      .overrideComponent(SubjectsComponent, {
+        set: {
+          template: ''
+        }
+      })
+      .compileComponents();
 
-  beforeEach(() => {
     fixture = TestBed.createComponent(SubjectsComponent);
     component = fixture.componentInstance;
-    router = TestBed.inject(Router);
-    subjectService = TestBed.inject(SubjectService);
+
+    fixture.detectChanges();
+  });
+
+  afterEach(() => {
+    jest.clearAllMocks();
   });
 
   it('should create', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should display subjects', () => {
-    const subjects = [
-      { id: 1, name: 'Subject 1' },
-      { id: 2, name: 'Subject 2' },
-      { id: 3, name: 'Subject 3' },
-    ];
+  it('should load subjects on init', () => {
+    expect(subjectServiceMock.getSubjects)
+      .toHaveBeenCalled();
 
-    // Simuler l'appel au service qui renvoie la liste des sujets
-    jest.spyOn(subjectService, 'getSubjects').mockReturnValue(of(subjects));
-
-    // Déclencher le changement de détection pour mettre à jour la vue
-    fixture.detectChanges();
-
-    // Vérifier que les sujets sont affichés correctement dans le template
-    const subjectElements =
-      fixture.nativeElement.querySelectorAll('.subject-item');
-    expect(subjectElements.length).toBe(3);
-    expect(subjectElements[0].textContent).toContain('Subject 1');
-    expect(subjectElements[1].textContent).toContain('Subject 2');
-    expect(subjectElements[2].textContent).toContain('Subject 3');
+    expect(component.subjects)
+      .toEqual(subjectsMock);
   });
 
-  it('should handle error when fetching subjects', () => {
-    // Simuler une erreur lors de l'appel au service
-    jest
-      .spyOn(subjectService, 'getSubjects')
-      .mockReturnValue(throwError('Error fetching subjects'));
+  it('should populate subjects list', () => {
+    component.getSubjects();
 
-    // Déclencher le changement de détection pour mettre à jour la vue
-    fixture.detectChanges();
+    expect(component.subjects.length)
+      .toBe(2);
+  });
 
-    // Vérifier que le message d'erreur est affiché dans le template
-    const errorMessageElement =
-      fixture.nativeElement.querySelector('.error-message');
-    expect(errorMessageElement.textContent).toContain(
-      'Error fetching subjects'
+  it('should set error message when getSubjects fails', () => {
+    subjectServiceMock.getSubjects.mockReturnValue(
+      throwError(() => new Error('API Error'))
     );
+
+    component.getSubjects();
+
+    expect(component.errorMessage)
+      .toBe('Error fetching subjects');
   });
 
-  // Test the deleteSubject method
-  it('should call the service deleteSubject method and then navigate back to list of subjects', () => {
-    const subjectId = '1';
-    const deleteSubjectSpy = jest
-      .spyOn(subjectService, 'deleteSubject')
-      .mockReturnValue(of('Subject deleted successfully'));
-    const routerNavigateSpy = jest.spyOn(router, 'navigateByUrl');
+  it('should delete subject and reload list', () => {
+    const getSubjectsSpy = jest.spyOn(
+      component,
+      'getSubjects'
+    );
 
-    component.onDeleteSubject(subjectId);
+    component.onDeleteSubject('1');
 
-    expect(deleteSubjectSpy).toHaveBeenCalledWith(subjectId); // vérifier que la méthode deleteSubject du service a été appelée avec le bon id
+    expect(subjectServiceMock.deleteSubject)
+      .toHaveBeenCalledWith('1');
+
+    expect(getSubjectsSpy)
+      .toHaveBeenCalled();
   });
 
-  // Teste the deleteSubject method when the service returns an error
-  it('should handle error when deleting a subject', () => {
-    const subjectId = '1';
-    const errorMessage = 'Failed to delete the subject';
+  it('should set error message when delete fails', () => {
+    subjectServiceMock.deleteSubject.mockReturnValue(
+      throwError(() => new Error('Delete error'))
+    );
 
-    // Mock the deleteSubject method of the service to return an error
-    jest
-      .spyOn(subjectService, 'deleteSubject')
-      .mockReturnValue(throwError(errorMessage));
+    component.onDeleteSubject('1');
 
-    // Spy on the console.error to check if the error message is logged
-    jest.spyOn(console, 'error');
-
-    // Call the method to be tested
-    component.onDeleteSubject(subjectId);
-
-    // Expect that the deleteSubject method was called with the correct subjectId
-    expect(subjectService.deleteSubject).toHaveBeenCalledWith(subjectId);
-
-    // Expect that console.error was called with the error message
-    expect(console.error).toHaveBeenCalledWith(errorMessage);
+    expect(component.errorMessage)
+      .toBe('Error deleting subject');
   });
+
+  it('should navigate to subject detail', () => {
+    component.onSubjectDetail(5);
+
+    expect(routerMock.navigateByUrl)
+      .toHaveBeenCalledWith('/mdd/subjects/5');
+  });
+
+  it('should navigate to add subject form', () => {
+    component.onAddSubjectForm();
+
+    expect(routerMock.navigateByUrl)
+      .toHaveBeenCalledWith('/mdd/subjects/subject-form');
+  });
+
+  it('should navigate to edit subject form', () => {
+    component.onEditSubject('10');
+
+    expect(routerMock.navigateByUrl)
+      .toHaveBeenCalledWith('/mdd/subjects/subject-form/10');
+  });
+
+  it('should subscribe to subject', () => {
+    const subject = {
+      id: 1,
+      name: 'Angular',
+      followed: false
+    } as any;
+
+    component.onSubscribeSubject(subject);
+
+    expect(
+      subscriptionServiceMock.subscribeToSubject
+    ).toHaveBeenCalledWith(
+      1,
+      99
+    );
+
+    expect(subject.followed)
+      .toBe(true);
+  });
+
+  it('should unsubscribe from subject', () => {
+    const subject = {
+      id: 2,
+      name: 'Java',
+      followed: true
+    } as any;
+
+    component.onSubscribeSubject(subject);
+
+    expect(
+      subscriptionServiceMock.unsubscribeSubject
+    ).toHaveBeenCalledWith(
+      2,
+      99
+    );
+
+    expect(subject.followed)
+      .toBe(false);
+  });
+
+  it('should do nothing when subject is null', () => {
+    component.onSubscribeSubject(null as any);
+
+    expect(
+      subscriptionServiceMock.subscribeToSubject
+    ).not.toHaveBeenCalled();
+
+    expect(
+      subscriptionServiceMock.unsubscribeSubject
+    ).not.toHaveBeenCalled();
+  });
+
 });
