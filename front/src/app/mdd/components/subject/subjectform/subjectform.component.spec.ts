@@ -1,3 +1,12 @@
+import {
+  describe,
+  beforeEach,
+  afterEach,
+  it,
+  expect,
+  jest
+} from '@jest/globals';
+
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { SubjectFormComponent } from './subjectform.component';
 import { of, throwError } from 'rxjs';
