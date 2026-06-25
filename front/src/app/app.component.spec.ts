@@ -1,3 +1,4 @@
+// npx jest src/app/app.component.spec.ts
 import {
   describe,
   beforeEach,
@@ -22,8 +23,8 @@ import {
 } from './app.component';
 
 import { HomeComponent } from './pages/home/home.component';
-import { LoginComponent } from './auth/components/login/login.component';
-import { RegisterComponent } from './auth/components/register/register.component';
+import { LoginComponent } from './pages/auth/login/login.component';
+import { RegisterComponent } from './pages/auth/register/register.component';
 
 @Component({
   template: '',

@@ -2,8 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import { Observable, filter, interval, observable } from 'rxjs';
 import { HomeComponent } from './pages/home/home.component';
-import { LoginComponent } from './auth/components/login/login.component';
-import { RegisterComponent } from './auth/components/register/register.component';
+import { LoginComponent } from './pages/auth/login/login.component';
+import { RegisterComponent } from './pages/auth/register/register.component';
 
 @Component({
   selector: 'app-root',
@@ -15,7 +15,7 @@ export class AppComponent implements OnInit {
   title = 'front';
 
   headerType!: HeaderType;
-  HeaderTypeEnum = HeaderType; // Ceci créera une référence à l'enum que nous pouvons utiliser dans le template
+  HeaderTypeEnum = HeaderType;
 
   showHeader = true;
 
@@ -40,9 +40,7 @@ export class AppComponent implements OnInit {
       });
   }
 
-  // tente de trouver le composant associé à la route donnée. Si la route n'a pas
-  // de composant (comme c'est le cas pour une route avec des routes enfants),
-  // elle tente de le trouver récursivement en parcourant les routes enfants.
+
   getActiveComponent(route: ActivatedRoute): any {
     if (route.routeConfig && route.routeConfig.component) {
       return route.routeConfig.component;

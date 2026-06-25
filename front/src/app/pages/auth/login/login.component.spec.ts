@@ -1,4 +1,5 @@
-// npx jest src/app/auth/components/register/register.component.spec.ts
+// npx jest src/app/pages/auth/login/login.component.spec.ts
+
 import {
   describe,
   beforeEach,
@@ -14,13 +15,13 @@ import { ElementRef } from '@angular/core';
 import { Router } from '@angular/router';
 import { of, throwError } from 'rxjs';
 
-import { RegisterComponent } from './register.component';
+import { LoginComponent } from './login.component';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { SessionService } from 'src/app/core/services/session.service';
 
-describe('RegisterComponent', () => {
-  let component: RegisterComponent;
-  let fixture: ComponentFixture<RegisterComponent>;
+describe('LoginComponent', () => {
+  let component: LoginComponent;
+  let fixture: ComponentFixture<LoginComponent>;
 
   const routerMock = {
     navigateByUrl: jest.fn()
@@ -31,7 +32,7 @@ describe('RegisterComponent', () => {
   };
 
   const authMock = {
-    register: jest.fn(),
+    login: jest.fn(),
     getCurrentUser: jest.fn()
   };
 
@@ -46,7 +47,7 @@ describe('RegisterComponent', () => {
     jest.spyOn(console, 'error').mockImplementation(() => {});
 
     await TestBed.configureTestingModule({
-      declarations: [RegisterComponent],
+      declarations: [LoginComponent],
       imports: [ReactiveFormsModule],
       providers: [
         FormBuilder,
@@ -64,14 +65,14 @@ describe('RegisterComponent', () => {
         }
       ]
     })
-      .overrideComponent(RegisterComponent, {
+      .overrideComponent(LoginComponent, {
         set: {
           template: ''
         }
       })
       .compileComponents();
 
-    fixture = TestBed.createComponent(RegisterComponent);
+    fixture = TestBed.createComponent(LoginComponent);
     component = fixture.componentInstance;
 
     fixture.detectChanges();
@@ -86,37 +87,30 @@ describe('RegisterComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should initialize register form', () => {
-    expect(component.registerForm).toBeDefined();
+  it('should initialize login form', () => {
+    expect(component.loginForm).toBeDefined();
 
-    expect(component.registerForm.contains('username'))
-      .toBe(true);
-
-    expect(component.registerForm.contains('email'))
-      .toBe(true);
-
-    expect(component.registerForm.contains('password'))
-      .toBe(true);
+    expect(component.loginForm.contains('login')).toBe(true);
+    expect(component.loginForm.contains('password')).toBe(true);
   });
 
   it('should create invalid form when empty', () => {
-    expect(component.registerForm.valid).toBe(false);
+    expect(component.loginForm.valid).toBe(false);
   });
 
   it('should create valid form with valid values', () => {
-    component.registerForm.patchValue({
-      username: 'john',
-      email: 'john@test.fr',
+    component.loginForm.patchValue({
+      login: 'john@test.fr',
       password: 'Password1!'
     });
 
-    expect(component.registerForm.valid).toBe(true);
+    expect(component.loginForm.valid).toBe(true);
   });
 
-  it('should focus username input after view init', async () => {
+  it('should focus login field after view init', async () => {
     const focusMock = jest.fn();
 
-    component.usernameInput = {
+    component.login = {
       nativeElement: {
         focus: focusMock
       }
@@ -130,7 +124,7 @@ describe('RegisterComponent', () => {
   });
 
   it('should call auth service on submit', () => {
-    authMock.register.mockReturnValue(
+    authMock.login.mockReturnValue(
       of({ token: 'token123' })
     );
 
@@ -138,29 +132,26 @@ describe('RegisterComponent', () => {
       of(userMock)
     );
 
-    component.registerForm.patchValue({
-      username: 'john',
-      email: 'john@test.fr',
+    component.loginForm.patchValue({
+      login: 'john@test.fr',
       password: 'Password1!'
     });
 
     component.submit();
 
-    expect(authMock.register)
-      .toHaveBeenCalledWith({
-        username: 'john',
-        email: 'john@test.fr',
-        password: 'Password1!'
-      });
+    expect(authMock.login).toHaveBeenCalledWith({
+      login: 'john@test.fr',
+      password: 'Password1!'
+    });
   });
 
-  it('should handle successful registration', () => {
+  it('should handle successful login', () => {
     authMock.getCurrentUser.mockReturnValue(
       of(userMock)
     );
 
     component.handleSuccess(
-      'User created successfully',
+      'User logged successfully',
       'token123'
     );
 
@@ -168,7 +159,7 @@ describe('RegisterComponent', () => {
       .toBe('token123');
 
     expect(component.message)
-      .toBe('User created successfully');
+      .toBe('User logged successfully');
 
     expect(sessionMock.logIn)
       .toHaveBeenCalledWith(userMock);
@@ -177,40 +168,27 @@ describe('RegisterComponent', () => {
       .toHaveBeenCalledWith('/mdd/article');
   });
 
-  it('should handle registration error', () => {
-    component.handleError('Failed to create user');
+  it('should handle login error', () => {
+    component.handleError('Failed to log user');
 
     expect(component.errorMessage)
-      .toBe('Failed to create user');
+      .toBe('Failed to log user');
   });
 
-  it('should set error message when registration fails', () => {
-    authMock.register.mockReturnValue(
+  it('should set error message when login fails', () => {
+    authMock.login.mockReturnValue(
       throwError(() => new Error('error'))
     );
 
-    component.registerForm.patchValue({
-      username: 'john',
-      email: 'john@test.fr',
+    component.loginForm.patchValue({
+      login: 'john@test.fr',
       password: 'Password1!'
     });
 
     component.submit();
 
     expect(component.errorMessage)
-      .toBe('Failed to create user');
+      .toBe('Failed to log user');
   });
 
-  it('should not call register service when form is invalid', () => {
-    component.registerForm.patchValue({
-      username: '',
-      email: '',
-      password: ''
-    });
-
-    component.submit();
-
-    expect(authMock.register)
-      .not.toHaveBeenCalled();
-  });
 });
