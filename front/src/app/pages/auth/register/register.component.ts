@@ -88,8 +88,6 @@ export class RegisterComponent implements OnInit, AfterViewInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.unsubscribe$.next(true);
-
-    // Unsubscribe from the subjectService
     this.unsubscribe$.unsubscribe();
   }
 }
