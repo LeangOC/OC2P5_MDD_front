@@ -2,30 +2,27 @@
 
 ## Front
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 14.1.3.
+### clone 
+https://github.com/OpenClassrooms-Student-Center/Developpez-une-application-full-stack-complete
 
-Don't forget to install your node_modules before starting (`npm install`).
+### Installation package Angular
+>$ npm install
 
-### Development server
+### Démarrage de l'application
+> ng serve --host 0.0.0.0
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The application will automatically reload if you change any of the source files.
+### Lancer les tests Jest Coverage
+> $ npx jest --coverage
 
-### Build
 
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory.
+### Lancer les tests Cypress
+> npx cypress run
 
-### Where to start
+########################################################################################################
 
-As you may have seen if you already started the app, a simple home page containing a logo, a title and a button is available. If you take a look at its code (in the `home.component.html`) you will see that an external UI library is already configured in the project.
-
-This library is `@angular/material`, it's one of the most famous in the angular ecosystem. As you can see on their docs (https://material.angular.io/), it contains a lot of highly customizable components that will help you design your interfaces quickly.
-
-Note: I recommend to use material however it's not mandatory, if you prefer you can get rid of it.
-
-Good luck!
 
 ### dev1
-1. Application de "README.md" ci-dessus:
+1. Application de "README.md" du clone:
 
 - cd front ( il a besoin du fichier package.json )
 
@@ -53,7 +50,7 @@ Good luck!
   Hit CTRL-C to stop the server
 
   Page d'acceuil :  
-  ![img2_dev1.png](ScreenShot/img2_dev1.png)  
+  ![img2_dev1.png](assets/img1_dev1.png)  
 
 ### dev2
 Remplacer par la vraie page d'Accueil.  
@@ -91,15 +88,15 @@ Implémentation de la page d'inscription
 - $ ng generate service services/auth    
   ![CORS_Erreur_API_Acces.png](assets/CORS_Erreur_API_Acces.png)      
   => installation sur Spring Boot : CorsConfig.java
-- ![Page1_Inscription.png](assets/Page1_Inscription.png)
+
 - ![Page2_Inscription.png](assets/Page2_Inscription.png)   
 
 ..............
 
 ### SolutionF
-Refactorisation complet des codes
-Tests fonctionnels :
+Refactorisations et Implémentations complets des codes : 
 - Inscription
+- Connexion
 - Modifier le profile
 - logout
 - Connexion
@@ -108,19 +105,30 @@ Tests fonctionnels :
 - ajoute un article
 - ajout une commentaire à un article
 
+Page des thèmes de MDD :  
+![Pages_Themes.png](assets/Pages_Themes.png)
+
+Pour le reste des images voir "Documentation et rapport du projet MDD" pour les screenshots dans l'annexe A.
+
+
 ...........
 
-
 ### SolutionFTest
-Tests :
-- Jest coverage
-- Cypress
+Tests :  
+- Jest coverage  
+
+  Rapport : front/coverage/lcov-report/index.html  
+  ![Jest_Coverage.png](assets/Jest_Coverage.png)
 
 
+- Tests Cypress  
 
+  Rapport de test Cypress  
+  ![Cypress_Tests.png](assets/Cypress_Tests.png)
+
+..............
 
 # main
-- Merge
-- javadoc
-- Swagger/OpenApi
+- Merge  
+
 
