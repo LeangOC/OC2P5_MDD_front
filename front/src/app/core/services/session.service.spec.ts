@@ -41,20 +41,7 @@ describe('SessionService', () => {
     expect(service.isLogged).toBe(true);
     expect(service.user).toEqual(user);
   });
-/*
-  it('should emit login state when logging in', () => {
-    const nextSpy = jest.fn();
 
-    (service as any).isLoggedSubject.subscribe(nextSpy);
-
-    service.logIn({
-      id: 1,
-      username: 'john',
-      email: 'john@test.fr',
-    });
-
-    expect(nextSpy).toHaveBeenCalledWith(true);
-  }); */
 
   it('should logout user', () => {
     localStorage.setItem('token', 'jwt-token');

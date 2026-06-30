@@ -13,8 +13,8 @@ import { SessionService } from 'src/app/core/services/session.service';
   standalone:false
 })
 export class ArticleformComponent implements OnInit {
-  themes: MySubject[] = []; // Remplacez MyTheme par le type de votre modèle de thème si différent
-  selectedTheme!: string; // Pour stocker le thème sélectionné
+  themes: MySubject[] = [];
+  selectedTheme!: string;
   message: string | null = null;
   errorMessage: string | null = null;
 

@@ -2,27 +2,22 @@
 
 .article-detail-container {
   display: grid;
-  row-gap: 16px; // Espace entre les lignes
+  row-gap: 16px;
   grid-template-areas:
     "title"
     "metadata"
     "content"
     "comments";
 
-  // Spécifiez la largeur et d'autres styles pour la carte selon vos besoins
-  //   width: 500px;
+
   min-width: 650px;
   margin: 0 auto;
-  //   border: 1px solid #e0e0e0;
-  //   border-radius: 8px;
-  //   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+   overflow: auto;
 
-  overflow: auto; // Dans le cas où le contenu dépasse la hauteur de l'écran, une barre de défilement apparaîtra.
+  width: 90%;
+  min-width: 300px;
 
-  width: 90%; // Augmente la largeur pour mieux remplir l'espace disponible
-  min-width: 300px; // Réduit la largeur minimale pour permettre une meilleure adaptabilité
 
-  // Réduisez le padding pour maximiser l'espace
   padding: 8px;
 }
 
@@ -36,11 +31,10 @@
   grid-area: metadata;
   display: flex;
   flex-wrap: wrap;
-  flex-direction: row; // Les éléments s'empilent verticalement
+  flex-direction: row;
   justify-content: flex-start;
-  column-gap: 50px; // Réduit l'écart entre les éléments
-  align-items: center; /* Ajoutez cette ligne */
-  // mettre les élément en gras
+  column-gap: 50px;
+  align-items: center;
   font-weight: bold;
 }
 
@@ -56,8 +50,7 @@
     height: 2px;
     background-color: #979191;
     position: absolute;
-    bottom: -16px; // Ajustez selon vos besoins
-    left: 0;
+    bottom: -16px;
   }
 }
 
@@ -65,26 +58,25 @@
   grid-area: comments;
 }
 
-/* Lien de retour - positionnement par défaut */
+
 .back-icon {
   position: absolute;
-  top: $header-height + 1.2; // Déplacez le lien juste en dessous du header (adaptez ce chiffre en fonction de la hauteur de votre header)
+  top: $header-height + 1.2;
   left: 0;
-  padding: 10px; // Pour donner un peu d'espace autour du lien
-  z-index: 10; // Assurez-vous qu'il apparaît au-dessus des autres éléments
-  font-size: $back-arrow-font-size; /* Ajustez cette valeur selon la taille souhaitée */
+  padding: 10px;
+  z-index: 10;
+  font-size: $back-arrow-font-size;
 }
 
-/* Lorsque la largeur de l'écran est de 500px ou moins */
+
 @media (max-width: 500px) {
   .back-icon {
-    //top: $header-height; // Positionne le lien au-dessus du header
-    margin-left: 30px; // Décale le titre légèrement à droite
+     margin-left: 30px;
   }
 }
 
 @media (max-width: 500px) {
   .mat-card-title {
-    margin-left: 50px; // Décale le titre légèrement à droite
+    margin-left: 50px;
   }
 }

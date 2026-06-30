@@ -10,7 +10,6 @@ import { MaterialModule } from './shared/material.module';
 import {LoginComponent} from "./pages/auth/login/login.component";
 import {RegisterComponent} from "./pages/auth/register/register.component";
 import {CommonModule} from "@angular/common";
-//import {AuthRoutingModule} from "./auth/auth-routing.module";
 import {SharedModule} from "./shared/shared.module";
 
 @NgModule({
@@ -23,7 +22,6 @@ import {SharedModule} from "./shared/shared.module";
     CoreModule,
     MaterialModule,
     CommonModule,
-    //AuthRoutingModule,
     SharedModule
   ],
   bootstrap: [AppComponent],

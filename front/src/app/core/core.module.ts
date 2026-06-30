@@ -11,7 +11,7 @@ import { NavigationItemsComponent } from './components/navigation-items/navigati
 @NgModule({
   declarations: [HeaderComponent, NavigationItemsComponent],
   imports: [
-    CommonModule, // nécessaire pour tout module qui déclare des composants (directives, pipes, etc.)
+    CommonModule,
     RouterModule,
     HttpClientModule,
     SharedModule,

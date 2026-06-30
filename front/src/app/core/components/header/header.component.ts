@@ -17,7 +17,7 @@ import { HeaderType } from 'src/app/app.component';
 export class HeaderComponent implements OnInit {
   @Output() toggleSidenav = new EventEmitter<void>();
   @Input() headerType!: HeaderType;
-  HeaderTypeEnum = HeaderType; // Ceci créera une référence à l'enum que nous pouvons utiliser dans le template
+  HeaderTypeEnum = HeaderType;
 
   constructor(private cdRef: ChangeDetectorRef) {}
 

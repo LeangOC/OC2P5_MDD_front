@@ -12,7 +12,7 @@ import { User } from '../models/User';
 export class AuthService {
   public baseUrl = environment.baseUrl;
 
-  // private token!: string;
+
 
   constructor(
     private http: HttpClient,
@@ -20,8 +20,6 @@ export class AuthService {
   ) {}
 
   public register(formValue: { name: string }): Observable<Token> {
-    console.log('ça envoie ce qui suit: ' + formValue.name);
-
     return this.http.post<Token>(`${this.baseUrl}/auth/register`, formValue);
   }
 

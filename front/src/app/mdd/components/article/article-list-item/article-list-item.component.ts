@@ -17,6 +17,6 @@ export class ArticleListItemComponent implements OnInit {
 
   showArticleDetails() {
     this.router.navigate(['mdd/article/article-detail/', this.article.id]);
-    //console.log('showArticleDetails');
+
   }
 }

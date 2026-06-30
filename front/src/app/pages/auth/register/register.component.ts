@@ -50,9 +50,7 @@ export class RegisterComponent implements OnInit, AfterViewInit, OnDestroy {
 
   submit() {
     if (this.registerForm.valid) {
-      console.log('ça envoie ce qui suit: ' + this.registerForm.value);
-
-      this.auth
+        this.auth
         .register(this.registerForm.value)
         .pipe()
         .subscribe({
@@ -67,7 +65,7 @@ export class RegisterComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   handleSuccess(message: string, token: string) {
-    // Sauvegardez le token dans le localStorage
+
     localStorage.setItem('token', token);
 
     // Affichez le message
