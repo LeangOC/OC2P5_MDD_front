@@ -74,3 +74,53 @@ Page d'accueil desktop avec Material Angular bouton  btn-rounded :
 Page d'accueil mobile avec Material Angular bouton  btn-rounded :  
 ![Page_Accueil_Mobile_Bouton_MareiralAngular.png](assets/Page_Accueil_Mobile_Bouton_MareiralAngular.png)  
 
+### dev3
+Implémenter la page de connexion  
+![Page_Connexion_Desktop.png](assets/Page_Connexion_Desktop.png)    
+![Page_Connexion_Mobile.png](assets/Page_Connexion_Mobile.png)
+
+
+### dev4
+Implémentation de la page d'inscription  
+![Page_Inscription_Desktop.png](assets/Page_Inscription_Desktop.png)  
+![Page_Inscription_Mobile.png](assets/Page_Inscription_Mobile.png)
+
+
+### dev5
+- brancher la page d'enregistrement à un Api /api/auth/register
+- $ ng generate service services/auth    
+  ![CORS_Erreur_API_Acces.png](assets/CORS_Erreur_API_Acces.png)      
+  => installation sur Spring Boot : CorsConfig.java
+- ![Page1_Inscription.png](assets/Page1_Inscription.png)
+- ![Page2_Inscription.png](assets/Page2_Inscription.png)   
+
+..............
+
+### SolutionF
+Refactorisation complet des codes
+Tests fonctionnels :
+- Inscription
+- Modifier le profile
+- logout
+- Connexion
+- Abonnement à un thèmes
+- fil d'actualité
+- ajoute un article
+- ajout une commentaire à un article
+
+...........
+
+
+### SolutionFTest
+Tests :
+- Jest coverage
+- Cypress
+
+
+
+
+# main
+- Merge
+- javadoc
+- Swagger/OpenApi
+
